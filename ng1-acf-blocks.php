@@ -44,3 +44,4 @@ add_action('admin_init', function() {
 include_once 'Ng1LoadAcfBlocks.php';
 include_once 'Ng1LoadAcfFieldsFromBlocks.php';
 include_once 'Ng1SaveAcfFieldsToBlocks.php';
+include_once 'Ng1LoadBlockFunctions.php';

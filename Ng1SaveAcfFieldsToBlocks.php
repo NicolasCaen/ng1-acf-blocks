@@ -55,7 +55,7 @@ class Ng1SaveAcfFieldsToBlocks {
                 if (isset($location_rule['param']) && 
                     $location_rule['param'] === 'block' && 
                     $location_rule['operator'] === '==' && 
-                    strpos($location_rule['value'], 'ng1/') === 0) {
+                    (strpos($location_rule['value'], 'ng1/') === 0 || strpos($location_rule['value'], 'up/') === 0)) {
                     return true;
                 }
             }
@@ -69,8 +69,8 @@ class Ng1SaveAcfFieldsToBlocks {
             foreach ($location_group as $location_rule) {
                 if ($location_rule['param'] === 'block' && 
                     $location_rule['operator'] === '==' && 
-                    strpos($location_rule['value'], 'ng1/') === 0) {
-                    return str_replace('ng1/', '', $location_rule['value']);
+                    (strpos($location_rule['value'], 'ng1/') === 0 || strpos($location_rule['value'], 'up/') === 0)) {
+                    return str_replace(['ng1/', 'up/'], '', $location_rule['value']);
                 }
             }
         }
@@ -78,6 +78,12 @@ class Ng1SaveAcfFieldsToBlocks {
     }
 
     private function save_fields_json($field_group, $block_path) {
+        // Récupère tous les champs du groupe
+        $fields = acf_get_fields($field_group);
+        
+        // Met à jour le field_group avec les champs
+        $field_group['fields'] = $fields;
+
         // Crée le dossier acf s'il n'existe pas
         $acf_dir = $block_path . '/acf';
         if (!file_exists($acf_dir)) {
