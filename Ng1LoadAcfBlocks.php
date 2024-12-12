@@ -55,40 +55,48 @@ public function load_blocks() {
  * Enregistre les scripts JavaScript des sous-répertoires des blocs.
  */
 public function register_block_script_from_folder() {
-    // Chemin vers le répertoire principal des blocs
-    $block_directory = get_stylesheet_directory() . '/acf-blocks/';
-
-    // Vérifie si le répertoire principal des blocs existe
-    if (!file_exists($block_directory) || !is_dir($block_directory)) {
-        wp_mkdir_p($block_directory);
+    // Vérifie si nous sommes sur une page qui contient des blocs
+    if (!has_blocks()) {
         return;
     }
-        // Vérifie si le répertoire principal des blocs existe
 
+    global $post;
+    $blocks = parse_blocks($post->post_content);
+    $registered_blocks = [];
 
-    // Récupère la liste de tous les sous-répertoires dans le répertoire principal des blocs
-    $block_folders = scandir($block_directory);
+    // Chemins vers les répertoires des blocs
+    $theme_block_directory = get_stylesheet_directory() . '/acf-blocks/';
+    $mu_block_directory = WPMU_PLUGIN_DIR . '/acf-blocks/';
 
-    // Parcours chaque sous-répertoire
-    foreach ($block_folders as $block) {
-        // Ignore les répertoires '.' et '..'
-        if ($block === '.' || $block === '..') {
+    foreach ($blocks as $block) {
+        // Vérifie si 'blockName' est défini et non null
+        if (!isset($block['blockName']) || $block['blockName'] === null) {
             continue;
         }
 
-        // Chemin vers le fichier 'function.js' dans le sous-répertoire actuel
-        $js_file_path = $block_directory . $block . '/assets/js/function.js';
+        // Extrait le nom du bloc (ex: 'ng1/sample' -> 'sample')
+        $block_name = str_replace('ng1/', '', $block['blockName']);
+        
+        if (in_array($block_name, $registered_blocks)) {
+            continue;
+        }
 
-        // Vérifie si le fichier 'function.js' existe
-        if (file_exists($js_file_path)) {
-            // Génère un identifiant basé sur le nom du sous-répertoire
-            $handle = sanitize_title($block);
+        // Vérifie d'abord dans le thème
+        $theme_js_file = $theme_block_directory . $block_name . '/assets/js/function.js';
+        // Vérifie ensuite dans mu-plugins
+        $mu_js_file = $mu_block_directory . $block_name . '/assets/js/function.js';
 
-            // Définit l'URL source du script
-            $src = get_stylesheet_directory_uri() . '/acf-blocks/' . $block . '/assets/js/function.js';
-
-            // Enregistre le script
+        if (file_exists($theme_js_file)) {
+            $handle = sanitize_title($block_name);
+            $src = get_stylesheet_directory_uri() . '/acf-blocks/' . $block_name . '/assets/js/function.js';
             wp_enqueue_script($handle, $src, array('jquery'), null, true);
+            $registered_blocks[] = $block_name;
+        } 
+        elseif (file_exists($mu_js_file)) {
+            $handle = sanitize_title($block_name);
+            $src = plugins_url('acf-blocks/' . $block_name . '/assets/js/function.js', WPMU_PLUGIN_DIR);
+            wp_enqueue_script($handle, $src, array('jquery'), null, true);
+            $registered_blocks[] = $block_name;
         }
     }
 }
@@ -120,7 +128,7 @@ public function get_blocks() {
         // Chemin vers le dossier des blocs dans mu-plugins
         $mu_blocks_folder_path = WPMU_PLUGIN_DIR . '/acf-blocks/';
 
-        // Crée le dossier acf-blocks s'il n'existe pas dans le th��me
+        // Crée le dossier acf-blocks s'il n'existe pas dans le thème
         wp_mkdir_p($blocks_folder_path);
 
         // Récupère la liste des sous-répertoires dans le répertoire des blocs du thème

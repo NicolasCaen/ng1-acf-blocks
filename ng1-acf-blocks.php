@@ -22,11 +22,11 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-// Définition des constantes du plugin
-define('NG1_ACF_BLOCKS_VERSION', '1.0.0');
-define('NG1_ACF_BLOCKS_FILE', __FILE__);
-define('NG1_ACF_BLOCKS_PATH', plugin_dir_path(__FILE__));
-define('NG1_ACF_BLOCKS_URL', plugin_dir_url(__FILE__));
+// Définition de la constante de debug (lié à WP_DEBUG par défaut)
+if (!defined('DEBUG_LOADING_ACF_BLOCKS')) {
+    define('DEBUG_LOADING_ACF_BLOCKS', WP_DEBUG);
+}
+
 
 // Vérification de la présence d'ACF PRO
 add_action('admin_init', function() {
@@ -40,6 +40,7 @@ add_action('admin_init', function() {
     }
 });
 
-// Chargement des fichiers principaux
+
 include_once 'Ng1LoadAcfBlocks.php';
-include_once 'Ng1AcfFieldsJsonToBlock.php';
+include_once 'Ng1LoadAcfFieldsFromBlocks.php';
+include_once 'Ng1SaveAcfFieldsToBlocks.php';
