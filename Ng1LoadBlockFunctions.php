@@ -19,7 +19,7 @@ class Ng1LoadBlockFunctions {
         $theme_blocks_path = get_stylesheet_directory() . '/acf-blocks/';
         $mu_blocks_path = WPMU_PLUGIN_DIR . '/acf-blocks/';
         
-        if (DEBUG_LOADING_ACF_BLOCKS) {
+            if (defined('DEBUG_LOADING_ACF_BLOCKS') && DEBUG_LOADING_ACF_BLOCKS) {
             error_log('Recherche des blocs dans : ' . $theme_blocks_path);
             error_log('Recherche des blocs dans : ' . $mu_blocks_path);
         }
@@ -42,7 +42,7 @@ class Ng1LoadBlockFunctions {
             $functions_file = $block_path . '/functions.php';
             
             if (file_exists($functions_file)) {
-                if (DEBUG_LOADING_ACF_BLOCKS) {
+                    if (defined('DEBUG_LOADING_ACF_BLOCKS') && DEBUG_LOADING_ACF_BLOCKS) {
                     error_log('Loading block functions: ' . $functions_file);
                 }
                 include_once $functions_file;

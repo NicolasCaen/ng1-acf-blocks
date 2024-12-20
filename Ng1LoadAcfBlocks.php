@@ -87,15 +87,17 @@ public function register_block_script_from_folder() {
         $mu_js_file = $mu_block_directory . $block_name . '/assets/js/function.js';
 
         if (file_exists($theme_js_file)) {
-            $handle = sanitize_title($block_name);
+            $handle = 'ng1-' . sanitize_title($block_name);
+            // Correction de l'URL pour le thème
             $src = get_stylesheet_directory_uri() . '/acf-blocks/' . $block_name . '/assets/js/function.js';
-            wp_enqueue_script($handle, $src, array('jquery'), null, true);
+            wp_enqueue_script($handle, $src, array('jquery'), filemtime($theme_js_file), true);
             $registered_blocks[] = $block_name;
         } 
         elseif (file_exists($mu_js_file)) {
-            $handle = sanitize_title($block_name);
-            $src = plugins_url('acf-blocks/' . $block_name . '/assets/js/function.js', WPMU_PLUGIN_DIR);
-            wp_enqueue_script($handle, $src, array('jquery'), null, true);
+            $handle = 'ng1-' . sanitize_title($block_name);
+            // Correction de l'URL pour mu-plugins
+            $src = content_url('mu-plugins/acf-blocks/' . $block_name . '/assets/js/function.js');
+            wp_enqueue_script($handle, $src, array('jquery'), filemtime($mu_js_file), true);
             $registered_blocks[] = $block_name;
         }
     }

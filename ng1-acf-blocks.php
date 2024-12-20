@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 
 // Définition de la constante de debug (lié à WP_DEBUG par défaut)
 if (!defined('DEBUG_LOADING_ACF_BLOCKS')) {
-    define('DEBUG_LOADING_ACF_BLOCKS', WP_DEBUG);
+    define('DEBUG_LOADING_ACF_BLOCKS',false);
 }
 
 
@@ -45,3 +45,4 @@ include_once 'Ng1LoadAcfBlocks.php';
 include_once 'Ng1LoadAcfFieldsFromBlocks.php';
 include_once 'Ng1SaveAcfFieldsToBlocks.php';
 include_once 'Ng1LoadBlockFunctions.php';
+include_once 'Ng1LoadBlockAdminScripts.php';
