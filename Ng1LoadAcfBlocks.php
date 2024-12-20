@@ -90,14 +90,14 @@ public function register_block_script_from_folder() {
             $handle = 'ng1-' . sanitize_title($block_name);
             // Correction de l'URL pour le thème
             $src = get_stylesheet_directory_uri() . '/acf-blocks/' . $block_name . '/assets/js/function.js';
-            wp_enqueue_script($handle, $src, array('jquery'), filemtime($theme_js_file), true);
+            wp_enqueue_script($handle, $src, $this->get_js_dependencies($theme_js_file), filemtime($theme_js_file), true);
             $registered_blocks[] = $block_name;
         } 
         elseif (file_exists($mu_js_file)) {
             $handle = 'ng1-' . sanitize_title($block_name);
             // Correction de l'URL pour mu-plugins
             $src = content_url('mu-plugins/acf-blocks/' . $block_name . '/assets/js/function.js');
-            wp_enqueue_script($handle, $src, array('jquery'), filemtime($mu_js_file), true);
+            wp_enqueue_script($handle, $src, $this->get_js_dependencies($mu_js_file), filemtime($mu_js_file), true);
             $registered_blocks[] = $block_name;
         }
     }
@@ -166,6 +166,37 @@ public function block_categories($block_categories, $editor_context) {
         );
     }
     return $block_categories;
+}
+
+/**
+ * Lit les dépendances depuis les commentaires d'un fichier JS
+ * 
+ * @param string $file_path Chemin du fichier JS
+ * @return array Liste des dépendances
+ */
+private function get_js_dependencies(string $file_path): array {
+    // Dépendances par défaut
+    $dependencies = array('jquery');
+    
+    if (!file_exists($file_path)) {
+        return $dependencies;
+    }
+    
+    // Lire les premiers caractères du fichier
+    $content = file_get_contents($file_path, false, null, 0, 1000);
+    
+    // Rechercher les dépendances dans l'en-tête
+    if (preg_match('/\* Dependencies:\s*(.+)$/m', $content, $matches)) {
+        $deps = array_map(function($dep) {
+            return trim($dep);
+        }, explode(',', $matches[1]));
+        
+        // Filtrer les dépendances vides
+        $deps = array_filter($deps);
+        $dependencies = array_merge($dependencies, $deps);
+    }
+    
+    return array_unique($dependencies);
 }
 }
 
